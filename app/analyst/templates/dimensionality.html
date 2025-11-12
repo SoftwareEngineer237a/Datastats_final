@@ -1,0 +1,86 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dimensionality.css') }}">
+<script src="{{ url_for('static', filename='js/dimensionality.js') }}"></script>
+
+<div class="container mt-4">
+    <h2>📊 Dimensionality Reduction (PCA / MCA)</h2>
+    <p><em>Dataset: {{ dataset_name }}</em></p>
+
+    <form method="POST" class="mb-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-group">
+            <label><strong>Select Method:</strong></label>
+            <select name="method" id="method-select" class="form-control" required>
+                <option value="">-- Select --</option>
+                <option value="PCA" {% if method == 'PCA' %}selected{% endif %}>PCA (Principal Component Analysis)</option>
+                <option value="MCA" {% if method == 'MCA' %}selected{% endif %}>MCA (Multiple Correspondence Analysis)</option>
+            </select>
+        </div>
+
+        <div class="form-group mt-3">
+            <label><strong>Select Columns:</strong></label>
+            <div class="row">
+                {% set cols = numeric_cols if method == 'PCA' else all_cols %}
+                {% for col in cols %}
+                <div class="col-md-4">
+                    <input type="checkbox" name="columns" value="{{ col }}"> {{ col }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Run Analysis</button>
+    </form>
+
+    {% if result %}
+    <hr>
+    <h3>Results</h3>
+
+    {% if result.error %}
+    <div class="alert alert-danger">
+        <strong>Error:</strong> {{ result.error }}
+    </div>
+    {% endif %}
+
+    {% if result.eigenvalues %}
+    <h4>📐 PCA Numerical Results</h4>
+    <p><strong>Eigenvalues:</strong> {{ result.eigenvalues }}</p>
+    <p><strong>Explained Variance Ratio:</strong> {{ result.explained_variance }}</p>
+
+    <h4>📊 Scree Plot</h4>
+    <div class="img-download-wrapper">
+        <img id="scree-img" src="{{ url_for('static', filename='generated/' + result.scree_plot) }}" class="img-fluid mb-3" alt="Scree Plot">
+        <button class="download-img-btn" data-target="scree-img">⬇️ Download Scree Plot</button>
+    </div>
+
+    <h4>🔀 PCA Biplot</h4>
+    <div class="img-download-wrapper">
+        <img id="biplot-img" src="{{ url_for('static', filename='generated/' + result.biplot) }}" class="img-fluid mb-3" alt="Biplot">
+        <button class="download-img-btn" data-target="biplot-img">⬇️ Download Biplot</button>
+    </div>
+
+    <h4>🔄 Correlation Circle</h4>
+    <div class="img-download-wrapper">
+        <img id="circle-img" src="{{ url_for('static', filename='generated/' + result.correlation_circle) }}" class="img-fluid mb-3" alt="Correlation Circle">
+        <button class="download-img-btn" data-target="circle-img">⬇️ Download Correlation Circle</button>
+    </div>
+    {% endif %}
+
+    {% if result.mca_map and not result.error %}
+    <h4>🧩 MCA Map</h4>
+    {% if result.inertia %}
+    <p><strong>Explained Inertia:</strong> Dim1: {{ "%.2f"|format(result.inertia[0]*100) }}%, Dim2: {{ "%.2f"|format(result.inertia[1]*100) }}%</p>
+    <p><strong>Data Info:</strong> {{ result.n_observations }} observations, {{ result.n_categories }} categories</p>
+    {% endif %}
+    <div class="img-download-wrapper">
+        <img id="mca-map-img" src="{{ url_for('static', filename='generated/' + result.mca_map) }}" class="img-fluid mb-3" alt="MCA Map">
+        <button class="download-img-btn" data-target="mca-map-img">⬇️ Download MCA Map</button>
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+{% endblock %}

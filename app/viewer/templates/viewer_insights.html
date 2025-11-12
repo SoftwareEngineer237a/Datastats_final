@@ -1,0 +1,72 @@
+{% extends "viewer_layout.html" %}
+
+{% block page_title %}Insights Center{% endblock %}
+
+{% block viewer_content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/viewer/insights.css') }}">
+
+<div class="insights-container">
+
+    <!-- Weekly Activity -->
+    <div class="insight-card highlight">
+        <h3><i class="fas fa-calendar-week"></i> Weekly Activity</h3>
+        <p>{{ weekly_graphs }} graphs created this week</p>
+    </div>
+
+    <!-- Trending Analysis Types -->
+    <div class="insight-card">
+        <h3><i class="fas fa-fire"></i> Trending Analysis Types</h3>
+        <ul>
+            {% for a in trending_analysis %}
+            <li><strong>{{ a[0] }}:</strong> {{ a[1] }} uses</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Most Viewed Graphs -->
+    <div class="insight-card">
+        <h3><i class="fas fa-eye"></i> Most Viewed Graphs</h3>
+        <div class="graph-grid">
+            {% for g in most_viewed %}
+            <div class="graph-preview">
+                {% if g.image_data %}
+                    <img src="data:image/png;base64,{{ g.image_data }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/placeholder-image.png') }}">
+                {% endif %}
+                <p class="title">{{ g.name }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Analyst Leaderboard -->
+    <div class="insight-card">
+        <h3><i class="fas fa-trophy"></i> Top Analysts</h3>
+        <ol class="leaderboard">
+            {% for analyst in analyst_rank %}
+            <li>{{ analyst[0] }} — {{ analyst[1] }} graphs</li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="insight-card">
+        <h3><i class="fas fa-lightbulb"></i> Recommended for You</h3>
+        <div class="graph-grid">
+            {% for r in recommended_graphs %}
+            <div class="graph-preview small">
+                {% if r.image_data %}
+                    <img src="data:image/png;base64,{{ r.image_data }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/placeholder-image.png') }}">
+                {% endif %}
+                <span>{{ r.name }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+<script src="{{ url_for('static', filename='js/viewer_insights.js') }}"></script>
+{% endblock %}

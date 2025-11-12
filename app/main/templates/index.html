@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataStats - Advanced Financial Analytics Platform</title>
+    <meta name="description" content="Professional data analytics platform for central banks and financial institutions. Advanced reporting, real-time insights, and comprehensive financial data analysis.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="{{ url_for('static', filename='img/datastats_logo.png')}}" class="logo-svg" alt="">
+                <span class="logo-text">DataStats</span>
+                <img src="{{ url_for('static', filename='img/beac_logo.jpeg ')}}" class="logo-svg" id="beac_logo">
+            </div>
+            
+            <div class="nav-actions">
+                <a href="/login" class="btn btn-outline">Login</a>
+                <a href="/register" class="btn btn-primary">Sign Up</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-background">
+            <div class="hero-overlay"></div>
+            <div class="floating-elements">
+                <div class="float-element" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+                <div class="float-element" style="top: 60%; right: 15%; animation-delay: 2s;"></div>
+                <div class="float-element" style="top: 80%; left: 20%; animation-delay: 4s;"></div>
+                <div class="float-element" style="top: 30%; right: 25%; animation-delay: 1s;"></div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        <span class="title-highlight">Advanced Financial Analytics</span>
+                        <br>for Central Banking Excellence
+                    </h1>
+                    <p class="hero-subtitle">
+                        Empower your financial decisions with DataStats - the premier analytics platform designed for central banks and financial institutions. Transform complex data into actionable insights with our cutting-edge technology.
+                    </p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">99.9%</span>
+                            <span class="stat-label">Uptime Reliability</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">50M+</span>
+                            <span class="stat-label">Data Points Processed</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">24/7</span>
+                            <span class="stat-label">Real-time Monitoring</span>
+                        </div>
+                    </div>
+                    <div class="hero-actions">
+                        <a href="" class="btn btn-primary btn-large">
+                            <i class="fas fa-rocket"></i>
+                            Get Started Free
+                        </a>
+                        <a href="#demo" class="btn btn-secondary btn-large">
+                            <i class="fas fa-play"></i>
+                            Watch Demo
+                        </a>
+                    </div>
+                    <p class="hero-note">
+                        <i class="fas fa-shield-alt"></i>
+                        Trusted by 100+ financial institutions worldwide
+                    </p>
+                </div>
+                <div class="hero-visual">
+                    <div class="dashboard-preview">
+                        <div class="dashboard-header">
+                            <div class="dashboard-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <span class="dashboard-title">Financial Dashboard</span>
+                        </div>
+                        <div class="dashboard-content">
+                            <div class="chart-container">
+                                <div class="chart-bars">
+                                    <div class="bar" style="height: 60%;"></div>
+                                    <div class="bar" style="height: 85%;"></div>
+                                    <div class="bar" style="height: 45%;"></div>
+                                    <div class="bar" style="height: 90%;"></div>
+                                    <div class="bar" style="height: 70%;"></div>
+                                    <div class="bar" style="height: 95%;"></div>
+                                </div>
+                                <div class="chart-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Powerful Analytics Features</h2>
+                <p class="section-subtitle">
+                    "Data is the new oil, but analytics is the refinery" - Transform your financial data into strategic advantages
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Real-time Analytics</h3>
+                    <p class="feature-description">
+                        Monitor financial markets and institutional performance with live data processing and instant insights.
+                    </p>
+                    <div class="feature-highlight">
+                        <span>Sub-second response time</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Bank-Grade Security</h3>
+                    <p class="feature-description">
+                        Enterprise-level encryption and security protocols designed specifically for financial institutions.
+                    </p>
+                    <div class="feature-highlight">
+                        <span>ISO 27001 Certified</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">AI-Powered Insights</h3>
+                    <p class="feature-description">
+                        Machine learning algorithms detect patterns, predict trends, and provide intelligent recommendations.
+                    </p>
+                    <div class="feature-highlight">
+                        <span>95% Accuracy Rate</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe-americas"></i>
+                    </div>
+                    <h3 class="feature-title">Global Compliance</h3>
+                    <p class="feature-description">
+                        Built-in compliance tools for international banking regulations and reporting standards.
+                    </p>
+                    <div class="feature-highlight">
+                        <span>50+ Jurisdictions</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="feature-title">Custom Dashboards</h3>
+                    <p class="feature-description">
+                        Create personalized analytics dashboards tailored to your specific institutional needs.
+                    </p>
+                    <div class="feature-highlight">
+                        <span>Unlimited Customization</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Collaborative Platform</h3>
+                    <p class="feature-description">
+                        Enable seamless collaboration across departments with shared insights and reports.
+                    </p>
+                    <div class="feature-highlight">
+                        <span>Multi-user Support</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solutions Section -->
+    <section class="solutions" id="solutions">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Tailored Solutions</h2>
+                <p class="section-subtitle">
+                    "In God we trust, all others must bring data" - Comprehensive solutions for every financial challenge
+                </p>
+            </div>
+            <div class="solutions-content">
+                <div class="solutions-tabs">
+                    <button class="tab-button active" data-tab="central-banking">Central Banking</button>
+                    <button class="tab-button" data-tab="risk-management">Risk Management</button>
+                    <button class="tab-button" data-tab="regulatory">Regulatory Reporting</button>
+                    <button class="tab-button" data-tab="market-analysis">Market Analysis</button>
+                </div>
+                <div class="tab-content active" id="central-banking">
+                    <div class="solution-item">
+                        <div class="solution-text">
+                            <h3>Central Bank Operations</h3>
+                            <p>Comprehensive suite of tools designed specifically for central bank monetary policy, financial stability monitoring, and economic surveillance.</p>
+                            <ul class="solution-features">
+                                <li><i class="fas fa-check"></i> Monetary Policy Analytics</li>
+                                <li><i class="fas fa-check"></i> Financial Stability Indicators</li>
+                                <li><i class="fas fa-check"></i> Economic Surveillance Tools</li>
+                                <li><i class="fas fa-check"></i> Real-time Market Monitoring</li>
+                            </ul>
+                        </div>
+                        <div class="solution-image">
+                            <div class="image-placeholder central-bank"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="risk-management">
+                    <div class="solution-item">
+                        <div class="solution-text">
+                            <h3>Advanced Risk Analytics</h3>
+                            <p>Sophisticated risk assessment tools with real-time monitoring, stress testing, and predictive modeling capabilities.</p>
+                            <ul class="solution-features">
+                                <li><i class="fas fa-check"></i> Credit Risk Assessment</li>
+                                <li><i class="fas fa-check"></i> Market Risk Analysis</li>
+                                <li><i class="fas fa-check"></i> Operational Risk Monitoring</li>
+                                <li><i class="fas fa-check"></i> Stress Testing Scenarios</li>
+                            </ul>
+                            <a href="/solutions/risk-management" class="btn btn-outline">Learn More</a>
+                        </div>
+                        <div class="solution-image">
+                            <div class="image-placeholder risk-mgmt"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="regulatory">
+                    <div class="solution-item">
+                        <div class="solution-text">
+                            <h3>Regulatory Compliance</h3>
+                            <p>Automated reporting solutions ensuring full compliance with international banking regulations and standards.</p>
+                            <ul class="solution-features">
+                                <li><i class="fas fa-check"></i> Automated Report Generation</li>
+                                <li><i class="fas fa-check"></i> Basel III Compliance</li>
+                                <li><i class="fas fa-check"></i> IFRS Standards</li>
+                                <li><i class="fas fa-check"></i> Audit Trail Management</li>
+                            </ul>
+                            <a href="/solutions/regulatory" class="btn btn-outline">Learn More</a>
+                        </div>
+                        <div class="solution-image">
+                            <div class="image-placeholder regulatory"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="market-analysis">
+                    <div class="solution-item">
+                        <div class="solution-text">
+                            <h3>Market Intelligence</h3>
+                            <p>Advanced market analysis tools with predictive modeling, trend analysis, and comprehensive market surveillance.</p>
+                            <ul class="solution-features">
+                                <li><i class="fas fa-check"></i> Market Trend Analysis</li>
+                                <li><i class="fas fa-check"></i> Predictive Modeling</li>
+                                <li><i class="fas fa-check"></i> Portfolio Analytics</li>
+                                <li><i class="fas fa-check"></i> Performance Benchmarking</li>
+                            </ul>
+                            </div>
+                        <div class="solution-image">
+                            <div class="image-placeholder market-analysis"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">"The best time to plant a tree was 20 years ago. The second best time is now."</h2>
+                <p class="cta-subtitle">Start your journey towards data-driven financial excellence today</p>
+                <div class="cta-actions">
+                    <a href="/login" class="btn btn-primary btn-large">
+                        <i class="fas fa-arrow-right"></i>
+                        Start Now
+                    </a>
+                    <a href="" class="btn btn-outline btn-large">
+                        <i class="fas fa-phone"></i>
+                        Schedule Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="{{ url_for('static', filename='img/datastats_logo.png') }}" class="logo-svg">
+                        <span class="footer-logo-text">DataStats</span>
+                    </div>
+                    <p class="footer-description">
+                        Advanced financial analytics platform designed for central banks and financial institutions worldwide.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><a href="#">Central Banking</a></li>
+                        <li><a href="#">Risk Management</a></li>
+                        <li><a href="#">Regulatory Compliance</a></li>
+                        <li><a href="#">Market Analysis</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Support Center</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> contact@datastats.com</li>
+                        <li><i class="fas fa-phone"></i> +237 672 01 27 78</li>
+                        <li><i class="fas fa-map-marker-alt"></i> BEAC Direction General, Yaounde</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DataStats. All rights reserved. | "Excellence in Financial Analytics"</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

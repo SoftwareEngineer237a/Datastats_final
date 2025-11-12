@@ -1,0 +1,251 @@
+{% extends "viewer_layout.html" %}
+
+{% block page_title %}Search Graphs{% endblock %}
+
+{% block viewer_content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/viewer/search.css') }}">
+
+<div class="search-container">
+    <!-- 🔍 Search Header -->
+    <div class="search-header">
+        <h1>Search Graphs</h1>
+        <p>Find specific analyses and visualizations across all datasets</p>
+    </div>
+
+    <!-- 🔧 Search & Filters Form -->
+    <form method="GET" action="{{ url_for('viewer.search') }}" class="search-filters-form">
+        <div class="search-main-row">
+            <!-- Search Input -->
+            <div class="search-input-group">
+                <i class="fas fa-search"></i>
+                <input type="text" 
+                       name="search" 
+                       placeholder="Search by graph name or dataset..." 
+                       value="{{ search_term }}">
+            </div>
+
+            <!-- Analysis Type Filter -->
+            <div class="filter-group">
+                <label for="analysis_type">Analysis Type</label>
+                <select name="analysis_type" id="analysis_type">
+                    <option value="">All Types</option>
+                    {% for analysis_type in analysis_types %}
+                    <option value="{{ analysis_type }}" 
+                            {% if analysis_type == selected_analysis_type %}selected{% endif %}>
+                        {{ analysis_type }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Graph Type Filter -->
+            <div class="filter-group">
+                <label for="graph_type">Graph Type</label>
+                <select name="graph_type" id="graph_type">
+                    <option value="">All Graphs</option>
+                    {% for graph_type in graph_types %}
+                    <option value="{{ graph_type }}" 
+                            {% if graph_type == selected_graph_type %}selected{% endif %}>
+                        {{ graph_type }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Dataset Filter -->
+            <div class="filter-group">
+                <label for="dataset_id">Dataset</label>
+                <select name="dataset_id" id="dataset_id">
+                    <option value="">All Datasets</option>
+                    {% for dataset in datasets %}
+                    <option value="{{ dataset.id }}" 
+                            {% if dataset.id|string == selected_dataset %}selected{% endif %}>
+                        {{ dataset.filename }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Date Range Row -->
+        <div class="search-secondary-row">
+            <div class="date-filter-group">
+                <label for="date_from">From Date</label>
+                <input type="date" 
+                       name="date_from" 
+                       id="date_from" 
+                       value="{{ date_from }}">
+            </div>
+
+            <div class="date-filter-group">
+                <label for="date_to">To Date</label>
+                <input type="date" 
+                       name="date_to" 
+                       id="date_to" 
+                       value="{{ date_to }}">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-search">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a href="{{ url_for('viewer.search') }}" class="btn-clear">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <!-- 📊 Search Results Summary -->
+    <div class="results-summary">
+        <h3>Search Results</h3>
+        <div class="summary-stats">
+            <span class="results-count">{{ graphs|length }} graphs found</span>
+            
+            {% if search_term or selected_analysis_type or selected_graph_type or selected_dataset or date_from or date_to %}
+            <div class="active-filters">
+                <span class="filters-label">Active filters:</span>
+                {% if search_term %}
+                <span class="filter-tag">Search: "{{ search_term }}"</span>
+                {% endif %}
+                {% if selected_analysis_type %}
+                <span class="filter-tag">Type: {{ selected_analysis_type }}</span>
+                {% endif %}
+                {% if selected_graph_type %}
+                <span class="filter-tag">Graph: {{ selected_graph_type }}</span>
+                {% endif %}
+                {% if selected_dataset %}
+                {% set selected_dataset_obj = datasets|selectattr("id", "equalto", selected_dataset|int)|first %}
+                <span class="filter-tag">Dataset: {{ selected_dataset_obj.filename if selected_dataset_obj else selected_dataset }}</span>
+                {% endif %}
+                {% if date_from or date_to %}
+                <span class="filter-tag">
+                    Date: {{ date_from if date_from else 'Start' }} to {{ date_to if date_to else 'Now' }}
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 📈 Graphs Grid -->
+    {% if graphs %}
+    <div class="graphs-grid">
+        {% for graph in graphs %}
+        <div class="graph-card">
+            <div class="graph-preview">
+                {% if graph.file_path %}
+                <img src="{{ url_for('static', filename=graph.file_path) }}" 
+                     alt="{{ graph.name }}"
+                     onerror="this.src='{{ url_for('static', filename='img/placeholder-graph.png') }}'">
+                {% else %}
+                <div class="no-preview">
+                    <i class="fas fa-chart-line"></i>
+                    <p>No Preview</p>
+                </div>
+                {% endif %}
+                <div class="graph-overlay">
+                    <button class="btn-view" onclick="viewGraph('{{ graph.id }}')">
+                        <i class="fas fa-expand"></i> View
+                    </button>
+                </div>
+            </div>
+            
+            <div class="graph-info">
+                <h4 class="graph-title">{{ graph.name }}</h4>
+                
+                <div class="graph-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span class="graph-type">{{ graph.graph_type }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-cog"></i>
+                        <span class="analysis-type">{{ graph.analysis_type }}</span>
+                    </div>
+                </div>
+                
+                <div class="graph-details">
+                    <div class="detail-item">
+                        <i class="fas fa-database"></i>
+                        <span class="dataset-name">{{ graph.dataset.filename if graph.dataset else 'Unknown Dataset' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-user"></i>
+                        <span class="analyst-name">{{ graph.user.name if graph.user else 'Unknown Analyst' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="far fa-calendar"></i>
+                        <span class="graph-date">{{ graph.created_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                </div>
+                
+                <div class="graph-actions">
+                    <button class="btn-action btn-download" onclick="downloadGraph('{{ graph.id }}')">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button class="btn-action btn-favorite" onclick="toggleFavorite('{{ graph.id }}')">
+                        <i class="far fa-star"></i> Favorite
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h3>No graphs found</h3>
+        <p>
+            {% if search_term or selected_analysis_type or selected_graph_type or selected_dataset or date_from or date_to %}
+            Try adjusting your search criteria or filters to see more results.
+            {% else %}
+            No graphs available. Graphs will appear here once analyses are generated.
+            {% endif %}
+        </p>
+        {% if search_term or selected_analysis_type or selected_graph_type or selected_dataset or date_from or date_to %}
+        <a href="{{ url_for('viewer.search') }}" class="btn-clear-all">
+            <i class="fas fa-times"></i> Clear all filters
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- 📄 Pagination (if needed in future) -->
+    {% if graphs|length > 12 %}
+    <div class="pagination">
+        <button class="btn-pagination btn-prev" disabled>
+            <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <span class="page-info">Page 1 of 1</span>
+        <button class="btn-pagination btn-next">
+            Next <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Graph Modal -->
+<div id="graphModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="modal-header">
+            <h3 id="modalGraphTitle">Graph Title</h3>
+        </div>
+        <div class="modal-body">
+            <img id="modalGraphImage" src="" alt="Graph Preview">
+        </div>
+        <div class="modal-footer">
+            <button class="btn-download" onclick="downloadCurrentGraph()">
+                <i class="fas fa-download"></i> Download
+            </button>
+            <button class="btn-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/viewer/search.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'layout.html' %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<script src="{{ url_for('static', filename='js/analyst.js') }}"></script>
+<div class="container-fluid analyst-dashboard">
+    <h2 class="dashboard-title">Welcome, Analyst {{ current_user.name }}</h2>
+    <p class="lead">This is your dashboard for managing datasets and performing analyses securely for the Central Bank.</p>
+
+    <!-- Quick Stats Summary Cards -->
+    <div class="row mt-4">
+        <div class="col-md-2">
+            <div class="stat-card">📂<br>Total Datasets<br><strong>{{ stats.total_datasets }}</strong></div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">📊<br>Analyses Performed<br><strong>{{ stats.total_analyses }}</strong></div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">🕒<br>Recent Upload<br><strong>{{ stats.recent_upload }}</strong></div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">✅<br>Completed Reports<br><strong>{{ stats.completed_reports }}</strong></div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">❌<br>Pending Reports<br><strong>{{ stats.pending_reports }}</strong></div>
+        </div>
+    </div>
+
+    <!-- Quick Access Buttons -->
+    <div class="row mt-5 access-buttons">
+        <div class="col">
+            <a href="{{ url_for('analyst.upload') }}" class="btn btn-primary">➕ Upload New Dataset</a>
+            
+        </div>
+    </div>
+
+    <!-- Recent Uploads Table -->
+    <div class="mt-5">
+        <h4>Recent Uploads</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Dataset Name</th>
+                    <th>Type</th>
+                    <th>Uploaded On</th>
+                    <th>Records</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in recent_uploads %}
+                <tr>
+                    <td>{{ file.name }}</td>
+                    <td>{{ file.type }}</td>
+                    <td>{{ file.uploaded_on.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ file.records }}</td>
+                    <td><a href="#" class="btn btn-sm btn-info">🔍 Preview</a></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">No uploads found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    
+</div>
+{% endblock %}

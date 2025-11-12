@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}">
+<div class="upload-container">
+    <h2>Upload Dataset</h2>
+    <p class="instruction">Supported formats: CSV, Excel (.xlsx), JSON</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="flash {{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Upload Form -->
+    <form action="{{ url_for('analyst.upload') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+        {{ form.hidden_tag() }}
+        <label for="file">Choose your dataset file:</label>
+        {{ form.file(class="form-input") }}
+        {{ form.submit(class="form-button") }}
+    </form>
+
+
+    {% if table_html and dataset_id %}
+            <hr>
+            <h3>Dataset Preview</h3>
+            <div class="table-preview">
+                {{ table_html | safe }}
+            </div>
+
+            <div class="clean-button-container">
+                <form action="{{ url_for('analyst.clean_data', dataset_id=dataset_id) }}" method="GET">
+                    <button type="submit" class="clean-btn">🧹 Clean & Transform Dataset</button>
+                </form>
+            </div>
+        {% endif %} 
+
+
+</div>
+{% endblock %}

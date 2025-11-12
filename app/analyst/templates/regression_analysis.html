@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/regression.css') }}">
+<script src="{{ url_for('static', filename='js/regression.js')}}"></script>
+<div class="container">
+    <h2>📉 Regression Analysis</h2>
+
+    <form method="POST" class="regression-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>X Column (Independent Variable):</label>
+        <select name="x_column" required>
+            <option value="">-- Select --</option>
+            {% for col in numeric_cols %}
+                <option value="{{ col }}">{{ col }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Y Column(s) (Dependent Variable(s)):</label>
+        <select name="y_column" multiple size="6" required>
+            {% for col in numeric_cols %}
+                <option value="{{ col }}">{{ col }}</option>
+            {% endfor %}
+        </select>
+        <small class="hint">Hold Ctrl (or Cmd) to select multiple.</small>
+
+        <label>Model Type:</label>
+        <select name="model_type" required>
+            <option value="linear">Linear Regression</option>
+            <option value="polynomial">Polynomial Regression</option>
+            <option value="logistic">Logistic Regression</option>
+            <option value="ridge">Ridge Regression</option>
+            <option value="lasso">Lasso Regression</option>
+            <option value="multiple_linear">Multiple Linear Regression (One X → Multiple Y)</option>
+        </select>
+
+        <label>Polynomial Degree (if applicable):</label>
+        <input type="number" name="degree" min="2" max="10" value="2">
+
+        <button type="submit">Run Regression</button>
+    </form>
+
+    {% if result %}
+        <hr>
+        <h3>📊 Regression Result</h3>
+        <p><strong>Model Metrics:</strong> {{ result.metric }}</p>
+
+        {% if result and result.csv %}
+        <div class="my-3">
+            <a class="btn btn-success"
+            href="{{ url_for('static', filename='results/' ~ result.csv) }}" download>
+            ⬇️ Download Regression Results CSV
+            </a>
+        </div>
+        {% endif %}
+
+
+
+        {% if result.predictions %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <!-- <th>{{ x_col }}</th> 
+                        {% if result.y_columns %}
+                            {% for col in result.y_columns %}
+                                <th>Predicted {{ col }}</th>
+                            {% endfor %}
+                        {% else %}
+                            <th>Predicted Y</th>
+                        {% endif %} -->
+                        <th>{{ x_col }}</th>
+                            {% for col in result.y_columns %}
+                                <th>{{ col }}</th>
+                            {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in result.predictions %}
+                        <tr>
+                            {% for val in row %}
+                                <td>{{ val }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

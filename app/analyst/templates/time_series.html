@@ -1,0 +1,260 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/time_series.css') }}">
+<script src="{{ url_for('static', filename='js/time_series.js') }}" defer></script>
+
+<div class="container" data-page="time-series">
+  <h2>⏱️ Time Series Analysis</h2>
+  <p class="subtitle">Select your date & value columns, pick a method, and configure parameters. This page supports
+    <strong>Moving Average</strong>, <strong>Exponential Smoothing</strong>, <strong>ARIMA</strong>, <strong>Seasonal Decomposition</strong>, and <strong>Trend Analysis</strong>.
+  </p>
+
+  <!-- Helpful prechecks -->
+  {% if not date_cols or not num_cols %}
+    <div class="notice warn" role="alert">
+      <strong>Heads up:</strong> We couldn't detect both date and numeric columns. Make sure your dataset has a
+      <em>parseable date column</em> (e.g., YYYY-MM-DD) and one or more <em>numeric columns</em>.
+    </div>
+  {% endif %}
+
+  <form method="POST" class="ts-form" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Column selection -->
+    <div class="row">
+      <div class="col">
+        <label for="date_col">Date Column</label>
+        <select id="date_col" name="date_col" required>
+          <option value="">-- Select --</option>
+          {% for c in date_cols %}
+            <option value="{{ c }}" {% if request.form.get('date_col') == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+        <small class="hint">This column will be parsed as dates and used for the time index.</small>
+      </div>
+
+      <div class="col">
+        <label for="value_col">Value Column</label>
+        <select id="value_col" name="value_col" required>
+          <option value="">-- Select --</option>
+          {% for c in num_cols %}
+            <option value="{{ c }}" {% if request.form.get('value_col') == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+        <small class="hint">Numeric series to analyze (e.g., CPI, GDP growth, credit).</small>
+      </div>
+    </div>
+
+    <!-- Resampling & aggregation -->
+    <div class="row">
+      <div class="col">
+        <label for="freq">Resample Frequency (optional)</label>
+        <select id="freq" name="freq">
+          <option value="">(None)</option>
+          <option value="D" {% if request.form.get('freq') == 'D' %}selected{% endif %}>Daily (D)</option>
+          <option value="M" {% if request.form.get('freq') == 'M' %}selected{% endif %}>Monthly (M)</option>
+          <option value="Q" {% if request.form.get('freq') == 'Q' %}selected{% endif %}>Quarterly (Q)</option>
+          <option value="Y" {% if request.form.get('freq') == 'Y' %}selected{% endif %}>Yearly (Y)</option>
+        </select>
+        <small class="hint">Use this if your series is irregular or you want a standard frequency.</small>
+      </div>
+
+      <div class="col">
+        <label for="agg">Aggregation</label>
+        <select id="agg" name="agg">
+          <option value="mean" {% if request.form.get('agg','mean') == 'mean' %}selected{% endif %}>Mean</option>
+          <option value="sum"  {% if request.form.get('agg') == 'sum'  %}selected{% endif %}>Sum</option>
+          <option value="max"  {% if request.form.get('agg') == 'max'  %}selected{% endif %}>Max</option>
+          <option value="min"  {% if request.form.get('agg') == 'min'  %}selected{% endif %}>Min</option>
+        </select>
+        <small class="hint">Applied after resampling (if any).</small>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Method selection -->
+    <div class="row">
+      <div class="col">
+        <label for="method-select">Method</label>
+        <select name="method" id="method-select" required>
+          <option value="">-- Select --</option>
+          <option value="moving_average" {% if method == 'moving_average' %}selected{% endif %}>Moving Average</option>
+          <option value="exp_smoothing"  {% if method == 'exp_smoothing'  %}selected{% endif %}>Exponential Smoothing</option>
+          <option value="arima"          {% if method == 'arima'          %}selected{% endif %}>ARIMA</option>
+          <option value="decomposition"  {% if method == 'decomposition'  %}selected{% endif %}>Seasonal Decomposition</option>
+          <option value="trend"          {% if method == 'trend'          %}selected{% endif %}>Trend Analysis</option>
+        </select>
+      </div>
+      <div class="col method-hint">
+        {% if method == 'moving_average' %}
+          <small class="hint strong">Moving Average:</small>
+          <small class="hint">Smooths short-term noise to reveal the underlying trend.</small>
+        {% elif method == 'exp_smoothing' %}
+          <small class="hint strong">Exponential Smoothing:</small>
+          <small class="hint">Fits level/trend/seasonality; great for forecasting stable seasonal data.</small>
+        {% elif method == 'arima' %}
+          <small class="hint strong">ARIMA:</small>
+          <small class="hint">Model with autoregression, differencing, and moving average; needs longer series.</small>
+        {% elif method == 'decomposition' %}
+          <small class="hint strong">Decomposition:</small>
+          <small class="hint">Splits series into trend, seasonality, and residual components.</small>
+        {% elif method == 'trend' %}
+          <small class="hint strong">Trend:</small>
+          <small class="hint">Fits a simple linear trend line and reports slope / direction.</small>
+        {% else %}
+          <small class="hint">Choose a method to see its parameters.</small>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Moving Average options -->
+    <div class="method method-moving_average" style="display:none;">
+      <div class="row">
+        <div class="col">
+          <label for="ma_window">Window</label>
+          <input id="ma_window" type="number" name="ma_window" min="1" value="{{ request.form.get('ma_window', 3) }}">
+          <small class="hint">Use 3, 6, or 12 for monthly data depending on smoothing you want.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exponential Smoothing options -->
+    <div class="method method-exp_smoothing" style="display:none;">
+      <div class="row">
+        <div class="col">
+          <label for="trend">Trend</label>
+          <select id="trend" name="trend">
+            <option value="none" {% if request.form.get('trend') == 'none' %}selected{% endif %}>None</option>
+            <option value="add"  {% if request.form.get('trend','add') == 'add' %}selected{% endif %}>Additive</option>
+            <option value="mul"  {% if request.form.get('trend') == 'mul' %}selected{% endif %}>Multiplicative</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="seasonal">Seasonal</label>
+          <select id="seasonal" name="seasonal">
+            <option value="none" {% if request.form.get('seasonal','none') == 'none' %}selected{% endif %}>None</option>
+            <option value="add"  {% if request.form.get('seasonal') == 'add' %}selected{% endif %}>Additive</option>
+            <option value="mul"  {% if request.form.get('seasonal') == 'mul' %}selected{% endif %}>Multiplicative</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="seasonal_periods">Seasonal Periods</label>
+          <input id="seasonal_periods" type="number" name="seasonal_periods" min="2" value="{{ request.form.get('seasonal_periods', '') }}">
+          <small class="hint">E.g., 12 for monthly yearly seasonality; 4 for quarterly.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARIMA options -->
+    <div class="method method-arima" style="display:none;">
+      <div class="row">
+        <div class="col">
+          <label for="arima_p">p</label>
+          <input id="arima_p" type="number" name="arima_p" min="0" value="{{ request.form.get('arima_p', 1) }}">
+        </div>
+        <div class="col">
+          <label for="arima_d">d</label>
+          <input id="arima_d" type="number" name="arima_d" min="0" value="{{ request.form.get('arima_d', 1) }}">
+        </div>
+        <div class="col">
+          <label for="arima_q">q</label>
+          <input id="arima_q" type="number" name="arima_q" min="0" value="{{ request.form.get('arima_q', 1) }}">
+        </div>
+        <div class="col">
+          <label for="forecast_steps">Forecast Steps</label>
+          <input id="forecast_steps" type="number" name="forecast_steps" min="1" value="{{ request.form.get('forecast_steps', 12) }}">
+        </div>
+      </div>
+      <small class="hint">Tip: For monthly data, start with (1,1,1) and ≥ 36 observations.</small>
+    </div>
+
+    <!-- Decomposition options -->
+    <div class="method method-decomposition" style="display:none;">
+      <div class="row">
+        <div class="col">
+          <label for="decomp_model">Model</label>
+          <select id="decomp_model" name="decomp_model">
+            <option value="additive"       {% if request.form.get('decomp_model','additive') == 'additive' %}selected{% endif %}>Additive</option>
+            <option value="multiplicative" {% if request.form.get('decomp_model') == 'multiplicative' %}selected{% endif %}>Multiplicative</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="decomp_period">Period</label>
+          <input id="decomp_period" type="number" name="decomp_period" min="2" value="{{ request.form.get('decomp_period', 12) }}">
+          <small class="hint">Minimum rule of thumb: at least 2 × period observations.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trend Analysis has no extra params -->
+    <div class="method method-trend" style="display:none;">
+      <small class="hint">Fits a simple linear trend line (least squares) and reports slope/direction.</small>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn-run">Run Analysis</button>
+    </div>
+  </form>
+
+  {% if result %}
+    <hr>
+    <div class="results">
+      {% if result.plot is defined and result.plot %}
+        <h4>📊 Time Series Result</h4>
+        <div class="img-download-wrapper">
+          <img id="ts-plot-img" src="{{ url_for('static', filename='img/' + result.plot) }}" class="ts-plot" alt="Time Series Plot">
+          <button class="download-img-btn" data-target="ts-plot-img">⬇️ Download Plot</button>
+        </div>
+      {% endif %}
+
+      <div class="metrics">
+        {# Moving average #}
+        {% if result.window is defined %}
+          <p><strong>Window:</strong> {{ result.window }}</p>
+        {% endif %}
+        {% if result.last_ma is defined and result.last_ma is not none %}
+          <p><strong>Last Moving Avg:</strong> {{ result.last_ma | round(4) }}</p>
+        {% endif %}
+
+        {# Exponential smoothing / ARIMA share AIC sometimes #}
+        {% if result.aic is defined and result.aic is not none %}
+          <p><strong>AIC:</strong> {{ result.aic | round(2) }}</p>
+        {% endif %}
+
+        {# ARIMA-only fields #}
+        {% if result.order is defined %}
+          <p><strong>ARIMA Order:</strong> ({{ result.order[0] }}, {{ result.order[1] }}, {{ result.order[2] }})</p>
+        {% endif %}
+        {% if result.forecast_steps is defined %}
+          <p><strong>Forecast Steps:</strong> {{ result.forecast_steps }}</p>
+        {% endif %}
+
+        {# Decomposition metadata #}
+        {% if result.meta is defined %}
+          <p><strong>Model:</strong> {{ result.meta.model }}</p>
+          <p><strong>Period:</strong> {{ result.meta.period }}</p>
+        {% endif %}
+
+        {# Trend-only fields #}
+        {% if result.slope is defined %}
+          <p><strong>Trend Slope:</strong> {{ result.slope | round(6) }} ({{ result.direction }})</p>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <hr>
+    <div class="empty-state">
+      <p>No output yet. Select your parameters and click <strong>Run Analysis</strong>.</p>
+      <ul class="tips">
+        <li>Ensure your <strong>Date Column</strong> is parseable (e.g., <code>YYYY-MM</code> or <code>YYYY-MM-DD</code>).</li>
+        <li>Pick a <strong>Value Column</strong> that's numeric (float/integer).</li>
+        <li>For <strong>Seasonal Decomposition</strong>, set <em>Period</em> (e.g., 12 for monthly).</li>
+        <li>For <strong>Exponential Smoothing</strong> with seasonality, set <em>Seasonal Periods</em>.</li>
+        <li>For <strong>ARIMA</strong>, ensure enough points (≥ 30 preferred).</li>
+      </ul>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

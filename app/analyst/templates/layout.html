@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Analyst | DataStats{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/analyst.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/beac-logo.png') }}">
+  {% block head_extra %}{% endblock %}
+</head>
+{# Keep dataset_id available everywhere #}
+<!-- {% set current_dataset_id = dataset_id if dataset_id is defined else None %} -->
+<body data-dataset-id="{{ current_dataset_id or '' }}">
+  <header>
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <img src="{{ url_for('static', filename='img/beac_logo.jpeg') }}" alt="BEAC Logo" />
+        <h1>DataStats</h1>
+      </div>
+
+      <ul class="navbar-menu">
+        {# Helper to mark active #}
+        {% macro active(endpoint_names) -%}
+          {%- if request.endpoint in endpoint_names -%}active{%- endif -%}
+        {%- endmacro %}
+
+        <!-- Dashboard (no dataset required) -->
+        <li class="{{ active(['analyst.dashboard']) }}">
+          <a href="{{ url_for('analyst.dashboard') }}">Dashboard</a>
+        </li>
+
+        <!-- Upload (no dataset required) -->
+        <li class="{{ active(['analyst.upload']) }}">
+          <a href="{{ url_for('analyst.upload') }}">Upload Data</a>
+        </li>
+
+        {# Dataset-dependent items: if dataset_id present, build proper URL; else guarded link with UX notice #}
+        {# Descriptive Stats #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.describe_dataset']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.describe_dataset', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Descriptive Stats</a>
+          {% else %}
+            <a href="#"
+               class="disabled-link"
+               data-requires-dataset="1"
+               title="Upload or select a dataset first">Descriptive Stats</a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Inferential Stats #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.inferential_stats']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.inferential_stats', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Inferential Stats</a>
+          {% else %}
+            <a href="#"
+               class="disabled-link"
+               data-requires-dataset="1"
+               title="Upload or select a dataset first">Inferential Stats</a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Regression #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.regression_analysis']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.regression_analysis', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Regression Analysis</a>
+          {% else %}
+            <a href="#" class="disabled-link" data-requires-dataset="1" title="Upload or select a dataset first">
+              Regression Analysis
+            </a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Non-parametric (ML) #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.machine_learning_analysis']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.machine_learning_analysis', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Non Parametric</a>
+          {% else %}
+            <a href="#" class="disabled-link" data-requires-dataset="1" title="Upload or select a dataset first">
+              Non Parametric
+            </a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Dimensionality #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.dimensionality_analysis']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.dimensionality_analysis', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Dimensionality</a>
+          {% else %}
+            <a href="#" class="disabled-link" data-requires-dataset="1" title="Upload or select a dataset first">
+              Dimensionality
+            </a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Clustering #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.clustering']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.clustering', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Clustering</a>
+          {% else %}
+            <a href="#" class="disabled-link" data-requires-dataset="1" title="Upload or select a dataset first">
+              Clustering
+            </a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Time Series #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.time_series_analysis']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.time_series_analysis', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Time Series</a>
+          {% else %}
+            <a href="#" class="disabled-link" data-requires-dataset="1" title="Upload or select a dataset first">
+              Time Series
+            </a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Correlation matrix #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.matrix_operations']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.matrix_operations', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Correlation Matrix</a>
+          {% else %}
+            <a href="#" class="disabled-link" data-requires-dataset="1" title="Upload or select a dataset first">
+              Correlation matrix
+            </a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Density Curve #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.density_curve']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.density_curve', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Density Curve</a>
+          {% else %}
+            <a href="#" class="disabled-link" data-requires-dataset="1" title="Upload or select a dataset first">
+              Density Curve
+            </a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Visualzation #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.visualizations']) if 'analyst.visualizations' in request.url_rule.endpoint if request.url_rule else '' }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.visualizations', dataset_id=current_dataset_id) }}"
+               data-requires-dataset="1">Visualzations</a>
+          {% else %}
+            <a href="#" class="disabled-link" data-requires-dataset="1" title="Upload or select a dataset first">
+              Visualizations
+            </a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        {# Chatbox #}
+        {% if dataset_id %}
+        <li class="{{ active(['analyst.chatbox']) }}">
+          {% if current_dataset_id %}
+            <a href="{{ url_for('analyst.chatbox', dataset_id=current_dataset_id) }}"
+              data-requires-dataset="1">Chatbox</a>
+          {% else %}
+            <a href="#" class="disabled-link" data-requires-dataset="1" title="Upload or select a dataset first">
+              Chatbox
+            </a>
+          {% endif %}
+        </li>
+        {% endif %}
+
+        <!-- Logout -->
+        <li>
+          <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </li>
+      </ul>
+    </nav>
+
+    {# Context bar showing dataset context and quick helper actions (optional) #}
+    <div class="context-bar">
+      {% if current_dataset_id %}
+        <span class="ctx-pill">Dataset ID: <strong>#{{ current_dataset_id }}</strong></span>
+        <span class="ctx-tip">All analysis links are enabled.</span>
+      {% else %}
+        <span class="ctx-pill warn">No dataset selected</span>
+        <span class="ctx-tip">Upload a dataset to enable analysis modules.</span>
+      {% endif %}
+    </div>
+  </header>
+
+  {# Flashes should be above main so users always see messages from engines/routes #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flashes">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 DataStats – BEAC Data Intelligence Platform. All rights reserved.</p>
+  </footer>
+
+  <!-- Page-specific scripts -->
+  <script src="{{ url_for('static', filename='js/analyst.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

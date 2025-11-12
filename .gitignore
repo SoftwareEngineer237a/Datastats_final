@@ -1,0 +1,42 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Environments ---
+.venv/
+env/
+venv/
+ENV/
+*.env
+*.venv
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Data ---
+uploads/
+*.csv
+*.xlsx
+*.json
+
+# --- Flask/Instance ---
+instance/
+*.db
+*.sqlite3
+
+# --- System ---
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+
+# --- Cache ---
+.cache/
+*.tmp
+
+# --- Compiled / build ---
+build/
+dist/
+*.egg-info/

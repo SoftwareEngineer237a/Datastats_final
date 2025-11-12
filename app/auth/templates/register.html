@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | DataStats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/beac-logo.png') }}">
+</head>
+<body>
+    <div class="register-container">
+        <div class="form-wrapper">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/BEAC_logo.jpeg') }}" alt="BEAC Logo">
+                <h2>DataStats</h2>
+                <p class="subtitle">Central Bank Data Intelligence Platform</p>
+            </div>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ form.name.label }}<br>
+                    {{ form.name(class_="form-input") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.email.label }}<br>
+                    {{ form.email(class_="form-input") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.password.label }}<br>
+                    {{ form.password(class_="form-input") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.confirm_password.label }}<br>
+                    {{ form.confirm_password(class_="form-input") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.role.label }}<br>
+                    {{ form.role(class_="form-input") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.submit(class_="btn-submit") }}
+                </div>
+
+                <p class="login-link">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+            </form>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+</body>
+</html>

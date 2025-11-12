@@ -1,0 +1,69 @@
+{% extends 'layout.html' %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/clustering.css') }}">
+<script src="{{ url_for('static', filename='js/clustering.js') }}"></script>
+<div class="container mt-4">
+    <h2>🔍 Clustering (KMeans & Hierarchical)</h2>
+
+    <div class="info-box">
+        <p><strong>What is Clustering?</strong> Clustering helps to group similar observations without predefined labels.</p>
+        <ul>
+            <li><strong>KMeans:</strong> Groups data into k distinct clusters.</li>
+            <li><strong>HAC:</strong> Builds a hierarchy of clusters (shown as dendrogram).</li>
+        </ul>
+    </div>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>Select Numeric Columns for Clustering:</label><br>
+        {% for col in numeric_cols %}
+            <input type="checkbox" name="columns" value="{{ col }}"> {{ col }}<br>
+        {% endfor %}
+
+        <label>Choose Algorithm:</label>
+        <select name="algorithm" id="algorithmSelect">
+            <option value="kmeans">KMeans</option>
+            <option value="hac">Hierarchical (HAC)</option>
+        </select>
+
+        <div id="kmeans-options">
+            <label>Number of Clusters (K):</label>
+            <input type="number" name="n_clusters" min="2" max="10" value="3">
+        </div>
+
+        <div id="hac-options" style="display:none;">
+            <label>HAC Linkage Method:</label>
+            <select name="hac_method">
+                <option value="ward">ward</option>
+                <option value="single">single</option>
+                <option value="complete">complete</option>
+                <option value="average">average</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Run Clustering</button>
+    </form>
+
+    {% if result %}
+    <hr>
+    <h4>📊 Result</h4>
+    
+    {% if result.kmeans_plot %}
+        <h5>KMeans Clustering</h5>
+        <div class="img-download-wrapper">
+            <img id="kmeans-img" src="{{ url_for('static', filename='img/' + result.kmeans_plot) }}" class="img-fluid mb-3" alt="KMeans Clustering">
+            <button class="download-img-btn" data-target="kmeans-img">⬇️ Download KMeans Plot</button>
+        </div>
+    {% endif %}
+    
+    {% if result.hac_plot %}
+        <h5>Hierarchical Clustering Dendrogram</h5>
+        <div class="img-download-wrapper">
+            <img id="hac-img" src="{{ url_for('static', filename='img/' + result.hac_plot) }}" class="img-fluid mb-3" alt="HAC Dendrogram">
+            <button class="download-img-btn" data-target="hac-img">⬇️ Download Dendrogram</button>
+        </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

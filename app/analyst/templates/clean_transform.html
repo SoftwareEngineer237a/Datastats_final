@@ -1,0 +1,74 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/clean_transform.css') }}">
+<script src="{{ url_for('static', filename='js/clean_transform.js') }}" defer></script>
+
+<div class="container">
+    <h2>🧹 Clean & Transform Dataset</h2>
+
+    <form method="POST" class="clean-form">
+        {{ form.hidden_tag() }}
+
+        <!-- 🔹 Handle Missing Values -->
+        <div class="form-section">
+            <h3>Handle Missing Values</h3>
+            {{ form.missing_strategy.label }}
+            {{ form.missing_strategy(class="form-control") }}
+        </div>
+
+        <!-- 🔹 Rename Columns --> 
+        <div class="form-section">
+            <h3>Rename Columns</h3>
+            {% for col in df.columns %}
+                <label>{{ col }}</label>
+                <input type="text" name="rename_{{ col }}" placeholder="New name for {{ col }}" class="form-control">
+            {% endfor %}
+        </div>
+
+        <!-- 🔹 Filter & Sort -->
+        <div class="form-section">
+            <h3>Filter & Sort</h3>
+            <input type="text" name="filter_column" placeholder="Column to Filter" class="form-control">
+            <input type="text" name="filter_value" placeholder="Value to Filter By" class="form-control">
+
+            <input type="text" name="sort_column" placeholder="Sort by Column" class="form-control">
+            <select name="sort_order" class="form-control">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+        </div>
+
+        <!-- 🔹 Normalize -->
+        <div class="form-section">
+            <h3>Normalize / Standardize</h3>
+            <input type="text" name="normalize_columns" placeholder="Comma-separated columns" class="form-control">
+        </div>
+
+        <!-- 🔹 Group & Aggregate -->
+        <div class="form-section">
+            <h3>Group & Aggregate</h3>
+            <input type="text" name="group_by" placeholder="Group by column" class="form-control">
+            <input type="text" name="agg_column" placeholder="Column to aggregate" class="form-control">
+            <select name="agg_func" class="form-control">
+                <option value="">-- Aggregation Function --</option>
+                <option value="sum">Sum</option>
+                <option value="mean">Mean</option>
+                <option value="count">Count</option>
+                <option value="max">Max</option>
+                <option value="min">Min</option>
+            </select>
+        </div>
+        
+        {{ form.submit(class="submit-btn") }}
+    </form>
+
+    {% if df_html %}
+    <hr>
+    <h3>📋 Data Preview</h3>
+    <div class="table-wrapper">
+        {{ df_html | safe }}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatbox.css') }}">
+
+<div class="main-chat-container">
+  <!-- Chat Header -->
+  <div class="main-chat-header">
+    <div class="header-content">
+      <div class="header-title">
+        <span class="title-icon">🤖</span>
+        <h1>AI Financial & Data Analyst</h1>
+        <span class="status-indicator">Online</span>
+      </div>
+      <div class="header-actions">
+        <button id="clearChat" class="header-btn" title="Clear conversation">
+          <span>🗑️</span>
+        </button>
+        <button id="exportChat" class="header-btn" title="Export conversation">
+          <span>📥</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages Container -->
+  <div id="messagesContainer" class="messages-container">
+    <div class="welcome-message">
+      <div class="welcome-card">
+        <div class="welcome-icon">🎯</div>
+        <h2>Welcome to AI Financial & Data Analyst</h2>
+        <p>I'm specialized in financial analysis, economics, and data insights. I can help you understand complex financial patterns and analytical results.</p>
+        
+        <div class="specialization-notice">
+          <h3>🔍 My Specializations:</h3>
+          <div class="capabilities">
+            <div class="capability-item">
+              <span class="capability-icon">🏦</span>
+              <span>Banking & Finance</span>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">📊</span>
+              <span>Economic Analysis</span>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">💰</span>
+              <span>Fiscal & Legal Matters</span>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">🔢</span>
+              <span>Mathematical Analysis</span>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">📈</span>
+              <span>Data Visualization</span>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">🎯</span>
+              <span>Pattern Recognition</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="domain-info">
+          <p><strong>💡 What I can help with:</strong></p>
+          <ul>
+            <li>Financial analysis and investment guidance</li>
+            <li>Economic trends and market insights</li>
+            <li>Statistical calculations and data modeling</li>
+            <li>Banking services and fiscal matters</li>
+            <li>Data visualization and pattern analysis</li>
+            <li>Mathematical computations and forecasting</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Container -->
+  <div class="input-container">
+    <!-- File Upload Area (Hidden) -->
+    <div id="fileUploadArea" class="file-upload-area hidden">
+      <div class="file-upload-content">
+        <div class="upload-icon">📁</div>
+        <p>Drop your financial/analytical files here or click to browse</p>
+        <p class="upload-subtitle">Supports: CSV, Excel, Images, PDF, Text files</p>
+        <input type="file" id="fileInput" multiple accept=".csv,.xlsx,.xls,.jpg,.jpeg,.png,.pdf,.txt,.json">
+      </div>
+    </div>
+
+    <!-- Uploaded Files Preview -->
+    <div id="uploadedFiles" class="uploaded-files"></div>
+
+    <!-- Main Input Area -->
+    <div class="main-input-area">
+      <div class="input-wrapper">
+        <!-- Attachment Button -->
+        <button id="attachBtn" class="attach-btn" title="Attach files">
+          <span>📎</span>
+        </button>
+
+        <!-- Text Input -->
+        <div class="text-input-container">
+          <textarea 
+            id="messageInput" 
+            placeholder="Ask me about financial analysis, economic trends, data patterns, mathematical calculations, or upload files for analysis..."
+            rows="1"
+            maxlength="2000"
+          ></textarea>
+          <div class="input-footer">
+            <span id="charCount" class="char-count">0/2000</span>
+            <span class="domain-hint">💡 I specialize in finance, economics, and data analysis</span>
+          </div>
+        </div>
+
+        <!-- Send Button -->
+        <button id="sendBtn" class="send-btn" disabled title="Send message">
+          <span class="send-icon">➤</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="loading-content">
+    <div class="loading-spinner"></div>
+    <p>Analyzing your financial/analytical request...</p>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/chatbox.js') }}"></script>
+
+{% endblock %}

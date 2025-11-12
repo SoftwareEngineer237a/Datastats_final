@@ -1,0 +1,150 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/matrix_ops.css') }}">
+<script src="{{ url_for('static', filename='js/matrix_ops.js') }}" defer></script>
+
+<div class="container" data-page="matrix-ops">
+  <h2>🧮 Matrix Operations</h2>
+  <p class="subtitle">Compute <strong>Correlation</strong> or <strong>Covariance</strong> matrices across selected numeric variables.</p>
+
+  <form method="POST" class="matrix-form" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="row">
+      <div class="col">
+        <label for="method">Method</label>
+        <select id="method" name="method" required>
+          <option value="">-- Select --</option>
+          <option value="correlation" {% if method == 'correlation' %}selected{% endif %}>Correlation</option>
+          <option value="covariance"  {% if method == 'covariance'  %}selected{% endif %}>Covariance</option>
+        </select>
+      </div>
+
+      <div class="col method-hint">
+        {% if method == 'correlation' %}
+          <small class="hint"><strong>Correlation:</strong> Strength & direction of linear/monotonic association (bounded -1 to +1).</small>
+        {% elif method == 'covariance' %}
+          <small class="hint"><strong>Covariance:</strong> Joint variability (unbounded; scale-dependent).</small>
+        {% else %}
+          <small class="hint">Choose a method to see its parameters.</small>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label>Numeric Columns</label>
+        <div class="cols-grid">
+          {% for col in numeric_cols %}
+            <label class="chk">
+              <input type="checkbox" name="columns" value="{{ col }}"
+                     {% if col in request.form.getlist('columns') %}checked{% endif %}>
+              <span>{{ col }}</span>
+            </label>
+          {% endfor %}
+        </div>
+        <small class="hint">Select at least two columns.</small>
+      </div>
+    </div>
+
+    <!-- Correlation options -->
+    <div class="method-block method-correlation" style="display:none;">
+      <div class="row">
+        <div class="col">
+          <label for="corr_method">Correlation Type</label>
+          <select id="corr_method" name="corr_method">
+            <option value="pearson"  {% if request.form.get('corr_method','pearson') == 'pearson' %}selected{% endif %}>Pearson (linear)</option>
+            <option value="spearman" {% if request.form.get('corr_method') == 'spearman' %}selected{% endif %}>Spearman (rank)</option>
+            <option value="kendall"  {% if request.form.get('corr_method') == 'kendall'  %}selected{% endif %}>Kendall (rank)</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="na_policy_corr">Missing Data Policy</label>
+          <select id="na_policy_corr" name="na_policy">
+            <option value="pairwise" {% if request.form.get('na_policy','pairwise') == 'pairwise' %}selected{% endif %}>Pairwise Complete</option>
+            <option value="complete" {% if request.form.get('na_policy') == 'complete' %}selected{% endif %}>Drop Rows (Complete Case)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Covariance options -->
+    <div class="method-block method-covariance" style="display:none;">
+      <div class="row">
+        <div class="col">
+          <label for="ddof">ddof</label>
+          <select id="ddof" name="ddof">
+            <option value="1" {% if request.form.get('ddof','1') == '1' %}selected{% endif %}>Sample (ddof=1)</option>
+            <option value="0" {% if request.form.get('ddof') == '0' %}selected{% endif %}>Population (ddof=0)</option>
+          </select>
+          <small class="hint">Use ddof=1 for sample covariance; ddof=0 for population covariance.</small>
+        </div>
+        <div class="col">
+          <label for="na_policy_cov">Missing Data Policy</label>
+          <select id="na_policy_cov" name="na_policy">
+            <option value="complete" {% if request.form.get('na_policy','complete') == 'complete' %}selected{% endif %}>Drop Rows (Complete Case)</option>
+            <option value="pairwise"  {% if request.form.get('na_policy') == 'pairwise' %}selected{% endif %}>Pairwise Complete</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn-run">Compute</button>
+    </div>
+  </form>
+
+  {% if result %}
+    <hr>
+    <div class="results">
+      <div class="results-header">
+        {% if method == 'correlation' %}
+          <h3>📈 Correlation Matrix ({{ result.method|title }})</h3>
+          <p class="meta">Missing policy: <code>{{ result.na_policy }}</code></p>
+        {% elif method == 'covariance' %}
+          <h3>📐 Covariance Matrix</h3>
+          <p class="meta">ddof=<code>{{ result.ddof }}</code>, Missing policy: <code>{{ result.na_policy }}</code></p>
+        {% endif %}
+      </div>
+
+      {% if result.plot %}
+        <div class="plot-wrap">
+          <img src="{{ url_for('static', filename='img/' + result.plot) }}" alt="Matrix Heatmap">
+        </div>
+      {% endif %}
+
+      <div class="table-wrap">
+        {{ result.matrix_html | safe }}
+      </div>
+
+      <div class="downloads">
+        {% if result.csv %}
+          <a class="btn-download" href="{{ url_for('static', filename='img/' + result.csv) }}" download>⬇️ Download CSV</a>
+        {% endif %}
+      </div>
+
+      {% if result.top_pairs is defined and result.top_pairs %}
+        <div class="top-pairs">
+          <h4>🔝 Top Correlated Pairs (by |correlation|)</h4>
+          <ol>
+            {% for a,b,r in result.top_pairs %}
+              <li><code>{{ a }}</code> &mdash; <code>{{ b }}</code>: <strong>{{ "%.4f"|format(r) }}</strong></li>
+            {% endfor %}
+          </ol>
+        </div>
+      {% endif %}
+    </div>
+  {% else %}
+    <hr>
+    <div class="empty-state">
+      <p>No output yet. Select the method and at least two numeric columns, then click <strong>Compute</strong>.</p>
+      <ul class="tips">
+        <li>Use <strong>Pearson</strong> for linear relationships, <strong>Spearman/Kendall</strong> for monotonic or non-normal data.</li>
+        <li>Covariance is scale-dependent; consider normalizing variables first if units differ greatly.</li>
+      </ul>
+    </div>
+  {% endif %}
+  
+</div>
+{% endblock %}

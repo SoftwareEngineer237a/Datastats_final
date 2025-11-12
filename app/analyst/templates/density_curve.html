@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/density_curve.css') }}">
+<script src="{{ url_for('static', filename='js/density_curve.js') }}"></script>
+
+<div class="container mt-4">
+    <h2>📈 Density Curve (Courbe de Densité)</h2>
+    <p><em>Select a numeric column to generate its density distribution.</em></p>
+
+    <form method="POST" class="density-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-group">
+            <label for="column"><strong>Select Column:</strong></label>
+            <select name="column" id="column" class="form-control" required>
+                <option value="">-- Choose a column --</option>
+                {% for col in numeric_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group mt-3">
+            <label for="color"><strong>Select Curve Color:</strong></label>
+            <input type="color" id="color" name="color" value="#008000" class="form-control-color">
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">
+            Generate Density Curve
+        </button>
+    </form>
+
+    {% if result %}
+    <hr>
+    <h3>Results for <strong>{{ result.column }}</strong></h3>
+
+    <div class="stats-box">
+        <p><strong>Mean:</strong> {{ result.mean }}</p>
+        <p><strong>Median:</strong> {{ result.median }}</p>
+        <p><strong>Std Dev:</strong> {{ result.std }}</p>
+        <p><strong>N:</strong> {{ result.n }}</p>
+    </div>
+
+    <div class="chart-wrapper">
+        <img id="density-img" 
+             src="data:image/png;base64,{{ result.image_base64 }}" 
+             alt="Density Curve" 
+             class="img-fluid mt-3">
+        <button id="download-btn" class="btn btn-success mt-3">
+            ⬇️ Download Graph
+        </button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

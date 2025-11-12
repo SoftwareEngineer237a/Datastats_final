@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewer Dashboard | DataStats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/viewer/viewer_layout.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="viewer-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="{{ url_for('static', filename='img/datastats_logo.png') }}" alt="Logo">
+                <h2>DataStats Viewer</h2>
+            </div>
+            <nav class="menu">
+                <a href="{{ url_for('viewer.viewer_dashboard') }}" class="menu-item {% if request.endpoint == 'viewer.viewer_dashboard' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="{{ url_for('viewer.search') }}" class="menu-item {% if request.endpoint == 'viewer.search' %}active{% endif %}">
+                    <i class="fas fa-search"></i> Search Graphs
+                </a>
+                <a href="{{ url_for('viewer.insights') }}" 
+                    class="menu-item {% if request.endpoint == 'viewer.insights' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Insights Center
+                </a>
+
+                <a href="{{ url_for('auth.logout') }}" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="content-header">
+                <h1>{% block page_title %}Viewer Dashboard{% endblock %}</h1>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ current_user.name }}</span>
+                </div>
+            </header>
+
+            <section class="content-body">
+                {% block viewer_content %}
+                <!-- Child templates inject content here -->
+                {% endblock %}
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
+</body>
+</html>

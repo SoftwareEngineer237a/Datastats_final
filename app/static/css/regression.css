@@ -1,0 +1,241 @@
+/* Regression Analysis Page Styles */
+
+.container h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    text-align: center;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+}
+
+/* Info Box Styling */
+.info-box {
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 100%);
+    border: 1px solid #3498db;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.1);
+}
+
+.info-box p {
+    margin: 0 0 1rem 0;
+    color: #2c3e50;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.info-box ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #34495e;
+}
+
+.info-box li {
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.info-box strong {
+    color: #2980b9;
+    font-weight: 600;
+}
+
+/* Form Styling */
+.regression-form {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.regression-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.regression-form select,
+.regression-form input[type="number"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.regression-form select:focus,
+.regression-form input[type="number"]:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    background-color: #f8fbff;
+}
+
+.regression-form select:hover,
+.regression-form input[type="number"]:hover {
+    border-color: #bdc3c7;
+}
+
+.regression-form button {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    padding: 0.875rem 2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.regression-form button:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.regression-form button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
+}
+
+.my-3{
+    padding: 1rem;
+}
+.my-3 a{
+    border: solid;
+    border-radius: 1rem;
+    text-decoration: none;
+    color: #4195e9;
+    background-color: #062544;
+    padding: 10px;
+}
+
+.my-3 :hover{
+    color: #0e0758;
+    background-color: rgb(164, 171, 253);
+}
+/* Results Section */
+h3 {
+    color: #27ae60;
+    margin: 2rem 0 1rem 0;
+    font-size: 1.5rem;
+    border-left: 4px solid #27ae60;
+    padding-left: 1rem;
+}
+
+/* Results Table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.table thead th {
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table tbody td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.table tbody tr:hover {
+    background-color: #e8f4f8;
+    transition: background-color 0.2s ease;
+}
+
+/* Model Metric Display */
+p strong {
+    color: #27ae60;
+    font-size: 1.1rem;
+}
+
+/* Horizontal Rule */
+hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(135deg, #3498db 0%, #27ae60 100%);
+    margin: 2rem 0;
+    border-radius: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container h2 {
+        font-size: 1.75rem;
+    }
+    
+    .info-box {
+        padding: 1rem;
+    }
+    
+    .regression-form {
+        padding: 1.5rem;
+    }
+    
+    .table {
+        font-size: 0.9rem;
+    }
+    
+    .table thead th,
+    .table tbody td {
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container h2 {
+        font-size: 1.5rem;
+    }
+    
+    .info-box {
+        padding: 0.75rem;
+    }
+    
+    .info-box ul {
+        padding-left: 1rem;
+    }
+    
+    .regression-form {
+        padding: 1rem;
+    }
+    
+    .regression-form button {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+    }
+}

@@ -1,0 +1,717 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/visualizations.css') }}">
+<div class="container" data-page="visualizations">
+  <h2>📊 Visualizations</h2>
+  <p class="subtitle">
+    Build rich visualizations directly from your dataset or from saved analysis outputs
+    (e.g., correlation matrices, forecasts). Choose a chart type, configure fields, and render.
+  </p>
+
+  <button class="history"><a href="{{ url_for('analyst.history') }}">View History</a></button>
+
+  <!-- Source selector -->
+  <form method="POST" class="viz-form" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <fieldset class="fieldset">
+      <legend>Source</legend>
+      <label class="radio">
+        <input type="radio" name="source" value="dataset" {% if request.form.get('source','dataset') == 'dataset' %}checked{% endif %}>
+        From Dataset
+      </label>
+      <label class="radio">
+        <input type="radio" name="source" value="analysis_csv" {% if request.form.get('source') == 'analysis_csv' %}checked{% endif %}>
+        From Analysis CSV
+      </label>
+
+      <div class="row analysis-source" style="display:none;">
+        <div class="col">
+          <label>Choose an existing analysis CSV (optional)</label>
+          <select name="analysis_csv_path">
+            <option value="">-- Select discovered CSV --</option>
+            {% for p in discovered_csvs %}
+              <option value="{{ p }}" {% if request.form.get('analysis_csv_path') == p %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+          </select>
+          <small class="hint">You can also paste a full path below.</small>
+          <input type="text" name="analysis_csv_path" placeholder=".../app/static/img/your_result.csv" value="{{ request.form.get('analysis_csv_path','') }}">
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Chart type & subtype -->
+    <fieldset class="fieldset">
+      <legend>Chart</legend>
+      <div class="row">
+        <div class="col">
+          <label for="chart_type">Chart Type</label>
+          <select id="chart_type" name="chart_type" required>
+            <option value="">-- Select --</option>
+
+            <option value="bar"         {% if chart_type == 'bar' %}selected{% endif %}>Bar</option>
+            <option value="line"        {% if chart_type == 'line' %}selected{% endif %}>Line / Area</option>
+            <option value="pie"         {% if chart_type == 'pie' %}selected{% endif %}>Pie / Donut</option>
+            <option value="scatter"     {% if chart_type == 'scatter' %}selected{% endif %}>Scatter / Bubble</option>
+            <option value="hist"        {% if chart_type == 'hist' %}selected{% endif %}>Histogram</option>
+            <option value="box_violin"  {% if chart_type == 'box_violin' %}selected{% endif %}>Box / Violin</option>
+            <option value="heatmap"     {% if chart_type == 'heatmap' %}selected{% endif %}>Heatmap</option>
+            <option value="radar"       {% if chart_type == 'radar' %}selected{% endif %}>Radar</option>
+            <option value="treemap"     {% if chart_type == 'treemap' %}selected{% endif %}>Treemap</option>
+            <option value="funnel"      {% if chart_type == 'funnel' %}selected{% endif %}>Funnel / Pyramid</option>
+            <option value="network"     {% if chart_type == 'network' %}selected{% endif %}>Network</option>
+            <option value="waterfall"   {% if chart_type == 'waterfall' %}selected{% endif %}>Waterfall</option>
+            <option value="gantt"       {% if chart_type == 'gantt' %}selected{% endif %}>Gantt</option>
+            <option value="sankey"      {% if chart_type == 'sankey' %}selected{% endif %}>Sankey</option>
+            <option value="map"         {% if chart_type == 'map' %}selected{% endif %}>Geographical Map</option>
+            <option value="dendrogram"  {% if chart_type == 'dendrogram' %}selected{% endif %}>Dendrogram</option>
+            <option value="combo"       {% if chart_type == 'combo' %}selected{% endif %}>Combo (Bar + Line)</option>
+            <option value="3dscatter"   {% if chart_type == '3dscatter' %}selected{% endif %}>3D Scatter</option>
+          </select>
+        </div>
+
+        <div class="col">
+          <label for="subtype">Subtype / Mode</label>
+          <select id="subtype" name="subtype">
+            <option value="">(Auto)</option>
+            <!-- Bar -->
+            <optgroup label="Bar">
+              <option value="vertical"   {% if subtype=='vertical' %}selected{% endif %}>Vertical</option>
+              <option value="horizontal" {% if subtype=='horizontal' %}selected{% endif %}>Horizontal</option>
+              <option value="stacked"    {% if subtype=='stacked' %}selected{% endif %}>Stacked</option>
+              <option value="grouped"    {% if subtype=='grouped' %}selected{% endif %}>Grouped</option>
+            </optgroup>
+            <!-- Line -->
+            <optgroup label="Line">
+              <option value="simple"   {% if subtype=='simple' %}selected{% endif %}>Simple</option>
+              <option value="multiple" {% if subtype=='multiple' %}selected{% endif %}>Multiple</option>
+              <option value="area"     {% if subtype=='area' %}selected{% endif %}>Stacked Area</option>
+            </optgroup>
+            <!-- Pie -->
+            <optgroup label="Pie">
+              <option value="pie"      {% if subtype=='pie' %}selected{% endif %}>Pie</option>
+              <option value="donut"    {% if subtype=='donut' %}selected{% endif %}>Donut</option>
+              <option value="exploded" {% if subtype=='exploded' %}selected{% endif %}>Exploded</option>
+            </optgroup>
+            <!-- Scatter -->
+            <optgroup label="Scatter">
+              <option value="scatter" {% if subtype=='scatter' %}selected{% endif %}>Scatter</option>
+              <option value="bubble"  {% if subtype=='bubble' %}selected{% endif %}>Bubble</option>
+            </optgroup>
+            <!-- Heatmap -->
+            <optgroup label="Heatmap">
+              <option value="standard"  {% if subtype=='standard' %}selected{% endif %}>Standard</option>
+              <option value="clustered" {% if subtype=='clustered' %}selected{% endif %}>Clustered</option>
+            </optgroup>
+            <!-- Map -->
+            <optgroup label="Map">
+              <option value="choropleth" {% if subtype=='choropleth' %}selected{% endif %}>Choropleth</option>
+              <option value="dot"        {% if subtype=='dot' %}selected{% endif %}>Dot Distribution</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="col">
+          <label class="chk">
+            <input type="checkbox" name="interactive" {% if request.form.get('interactive') %}checked{% endif %}> Interactive (Plotly)
+          </label>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Core field selectors -->
+    <fieldset class="fieldset">
+      <legend>Fields</legend>
+      <div class="row">
+        <div class="col">
+          <label for="x">X</label>
+          <select id="x" name="x">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('x') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col">
+          <label for="y">Y</label>
+          <select id="y" name="y">
+            <option value="">--</option>
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if request.form.get('y') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col">
+          <label for="y2">Y2 (Combo Line)</label>
+          <select id="y2" name="y2">
+            <option value="">--</option>
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if request.form.get('y2') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col">
+          <label for="z">Z (3D)</label>
+          <select id="z" name="z">
+            <option value="">--</option>
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if request.form.get('z') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label for="group">Group / Hue / Series</label>
+          <select id="group" name="group">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('group') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col">
+          <label for="size">Size (Bubble / Dot)</label>
+          <select id="size" name="size">
+            <option value="">--</option>
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if request.form.get('size') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col">
+          <label for="color">Color</label>
+          <select id="color" name="color">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('color') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="row y-multi">
+        <div class="col">
+          <label for="y_multi">Multiple Y (Line/Heatmap/Radar/Dendrogram)</label>
+          <select id="y_multi" name="y_multi" multiple size="6">
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if c in request.form.getlist('y_multi') %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+          <small class="hint">Hold Ctrl/Cmd to select multiple.</small>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Options per chart -->
+    <fieldset class="fieldset options options-bar" style="display:none;">
+      <legend>Bar Options</legend>
+      <div class="row">
+        <div class="col">
+          <label>Aggregation</label>
+          <select name="agg">
+            <option value="">(None)</option>
+            <option value="sum"   {% if request.form.get('agg')=='sum' %}selected{% endif %}>Sum</option>
+            <option value="mean"  {% if request.form.get('agg')=='mean' %}selected{% endif %}>Mean</option>
+            <option value="count" {% if request.form.get('agg')=='count' %}selected{% endif %}>Count</option>
+            <option value="max"   {% if request.form.get('agg')=='max' %}selected{% endif %}>Max</option>
+            <option value="min"   {% if request.form.get('agg')=='min' %}selected{% endif %}>Min</option>
+          </select>
+        </div>
+        <div class="col">
+          <label class="chk"><input type="checkbox" name="stacked" {% if request.form.get('stacked') %}checked{% endif %}> Stacked</label>
+        </div>
+        <div class="col">
+          <label>Orientation</label>
+          <select name="orientation">
+            <option value="">Auto</option>
+            <option value="horizontal" {% if request.form.get('orientation')=='horizontal' %}selected{% endif %}>Horizontal</option>
+            <option value="vertical"   {% if request.form.get('orientation')=='vertical' %}selected{% endif %}>Vertical</option>
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset options options-hist" style="display:none;">
+      <legend>Histogram Options</legend>
+      <div class="row">
+        <div class="col">
+          <label>Bins</label>
+          <input type="number" name="bins" min="2" value="{{ request.form.get('bins', 10) }}">
+        </div>
+        <div class="col">
+          <em>Use subtype "cumulative" for cumulative histograms.</em>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset options options-radar" style="display:none;">
+      <legend>Radar Options</legend>
+      <label class="chk"><input type="checkbox" name="filled" {% if request.form.get('filled') %}checked{% endif %}> Filled Radar</label>
+    </fieldset>
+
+    <fieldset class="fieldset options options-network" style="display:none;">
+      <legend>Network Options</legend>
+      <div class="row">
+        <div class="col">
+          <label>Source</label>
+          <select name="source_col">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('source_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label>Target</label>
+          <select name="target_col">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('target_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label>Weight</label>
+          <select name="weight_col">
+            <option value="">--</option>
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if request.form.get('weight_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label>Correlation Threshold (if no edges provided)</label>
+          <input type="number" step="0.01" name="corr_threshold" value="{{ request.form.get('corr_threshold',0.6) }}">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset options options-gantt" style="display:none;">
+      <legend>Gantt Options</legend>
+      <div class="row">
+        <div class="col">
+          <label>Task</label>
+          <select name="x">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('x') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label>Start</label>
+          <select name="start_col">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('start_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label>End</label>
+          <select name="end_col">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('end_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset options options-sankey" style="display:none;">
+      <legend>Sankey Options</legend>
+      <div class="row">
+        <div class="col">
+          <label>Source</label>
+          <select name="source_col">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('source_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label>Target</label>
+          <select name="target_col">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('target_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label>Value</label>
+          <select name="value_col">
+            <option value="">--</option>
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if request.form.get('value_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset options options-map" style="display:none;">
+      <legend>Map Options</legend>
+      <div class="row">
+        <div class="col">
+          <label>Mode</label>
+          <select name="subtype" id="map_subtype">
+            <option value="choropleth" {% if subtype=='choropleth' %}selected{% endif %}>Choropleth</option>
+            <option value="dot"        {% if subtype=='dot' %}selected{% endif %}>Dot</option>
+          </select>
+        </div>
+        <div class="col map-choropleth">
+          <label>Location Column</label>
+          <select name="geo_col">
+            <option value="">--</option>
+            {% for c in all_cols %}
+              <option value="{{ c }}" {% if request.form.get('geo_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+          <label>Location Mode</label>
+          <select name="geo_mode">
+            <option value="names" {% if request.form.get('geo_mode','names')=='names' %}selected{% endif %}>Country Names</option>
+            <option value="iso"   {% if request.form.get('geo_mode')=='iso' %}selected{% endif %}>ISO-3</option>
+          </select>
+        </div>
+        <div class="col map-dot" style="display:none;">
+          <label>Latitude</label>
+          <select name="lat_col">
+            <option value="">--</option>
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if request.form.get('lat_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+          <label>Longitude</label>
+          <select name="lon_col">
+            <option value="">--</option>
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if request.form.get('lon_col') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col map-value">
+          <label>Value (for color/size)</label>
+          <select name="y">
+            <option value="">--</option>
+            {% for c in num_cols %}
+              <option value="{{ c }}" {% if request.form.get('y') == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset options options-dendrogram" style="display:none;">
+      <legend>Dendrogram Options</legend>
+      <div class="row">
+        <div class="col">
+          <label>Linkage</label>
+          <select name="linkage_method">
+            <option value="ward"  {% if request.form.get('linkage_method','ward')=='ward' %}selected{% endif %}>Ward</option>
+            <option value="single" {% if request.form.get('linkage_method')=='single' %}selected{% endif %}>Single</option>
+            <option value="complete" {% if request.form.get('linkage_method')=='complete' %}selected{% endif %}>Complete</option>
+            <option value="average"  {% if request.form.get('linkage_method')=='average' %}selected{% endif %}>Average</option>
+          </select>
+        </div>
+        <div class="col">
+          <label class="chk"><input type="checkbox" name="standardize" {% if request.form.get('standardize') %}checked{% endif %}> Standardize Features</label>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit" class="btn-run">Render Chart</button>
+    </div>
+  </form>
+
+  {% if result %}
+  <hr>
+  <div class="viz-output">
+    {% if result.kind == 'image' %}
+      <img src="{{ url_for('static', filename='img/' + result.file) }}" alt="Chart" id="generated-chart">
+    {% elif result.kind == 'html' %}
+      <iframe src="{{ url_for('static', filename='html/' + result.file) }}"
+              title="Interactive Chart" frameborder="0"
+              style="width:100%;height:640px;border:1px solid #e5e7eb;border-radius:8px;"
+              id="chart-iframe"></iframe>
+    {% endif %}
+
+    <!-- Download Button Section -->
+    <div class="download-section" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+      <h4>📥 Download Chart</h4>
+      <div class="download-options">
+        <button class="btn-download" data-format="png" data-type="image">
+          Download as PNG
+        </button>
+        <button class="btn-download" data-format="jpg" data-type="image">
+          Download as JPG
+        </button>
+        <button class="btn-download" data-format="svg" data-type="image">
+          Download as SVG
+        </button>
+      </div>
+      <div class="download-status" style="margin-top: 10px; display: none;">
+        <span class="status-text"></span>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <hr>
+  <div class="empty-state">
+    <p>No output yet. Choose a chart type, fill the fields, and click <strong>Render Chart</strong>.</p>
+    <ul class="tips">
+      <li>For <em>Pie/Donut</em>, set <strong>X</strong> = labels, <strong>Y</strong> = values.</li>
+      <li>For <em>Radar</em>, select multiple numeric fields in <strong>Multiple Y</strong>.</li>
+      <li><em>Network</em>: Pick source/target columns, or omit and we'll build a correlation network from selected numeric fields.</li>
+      <li><em>Map</em>: Choropleth needs a country column + value; Dot needs latitude/longitude.</li>
+      <li><em>3D Scatter</em>: set X, Y, and Z.</li>
+    </ul>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Download functionality script -->
+<script>
+// Download functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const downloadButtons = document.querySelectorAll('.btn-download');
+  
+  downloadButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const format = this.getAttribute('data-format');
+      const type = this.getAttribute('data-type');
+      handleDownload(format, type);
+    });
+  });
+
+  function handleDownload(format, type) {
+    const statusEl = document.querySelector('.download-status');
+    const statusText = document.querySelector('.status-text');
+    
+    showStatus('Preparing download...', statusEl, statusText);
+    
+    try {
+      if (type === 'image') {
+        downloadImageChart(format);
+      } else {
+        downloadFallback(format);
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      showStatus('Download failed: ' + error.message, statusEl, statusText, 'error');
+    }
+  }
+
+  function downloadImageChart(format) {
+    const img = document.getElementById('generated-chart');
+    if (!img) {
+      throw new Error('No chart image found');
+    }
+
+    // Create a canvas to handle the image
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas dimensions to image dimensions
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    
+    // Draw image on canvas
+    ctx.drawImage(img, 0, 0);
+    
+    // Trigger download
+    triggerDownload(canvas, format, 'chart');
+  }
+
+  function triggerDownload(canvas, format, filename) {
+    const link = document.createElement('a');
+    
+    // Set appropriate MIME type
+    let mimeType;
+    switch (format) {
+      case 'jpg':
+      case 'jpeg':
+        mimeType = 'image/jpeg';
+        break;
+      case 'png':
+        mimeType = 'image/png';
+        break;
+      case 'svg':
+        // For SVG, we'll create a simple SVG wrapper
+        downloadAsSvg(canvas, filename);
+        return;
+      case 'pdf':
+        // PDF requires jsPDF library
+        downloadAsPdf(canvas, filename);
+        return;
+      default:
+        mimeType = 'image/png';
+    }
+
+    // For raster formats
+    link.download = `${filename}-${new Date().getTime()}.${format}`;
+    link.href = canvas.toDataURL(mimeType);
+    link.click();
+    
+    showStatus('Download started!', 
+      document.querySelector('.download-status'), 
+      document.querySelector('.status-text'), 
+      'success');
+  }
+
+  function downloadAsSvg(canvas, filename) {
+    // Simple SVG conversion - creates an SVG with embedded PNG
+    const width = canvas.width;
+    const height = canvas.height;
+    const dataUrl = canvas.toDataURL('image/png');
+    
+    const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <image href="${dataUrl}" width="${width}" height="${height}"/>
+</svg>`;
+    
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.download = `${filename}-${new Date().getTime()}.svg`;
+    link.href = url;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+    showStatus('Download started!', 
+      document.querySelector('.download-status'), 
+      document.querySelector('.status-text'), 
+      'success');
+  }
+
+  function downloadAsPdf(canvas, filename) {
+    // Check if jsPDF is available
+    if (typeof jspdf === 'undefined') {
+      showStatus('PDF download requires additional libraries. Using PNG instead.', 
+        document.querySelector('.download-status'), 
+        document.querySelector('.status-text'), 
+        'error');
+      triggerDownload(canvas, 'png', filename);
+      return;
+    }
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    const pdf = new jspdf.jsPDF({
+      orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+      unit: 'px',
+      format: [canvas.width, canvas.height]
+    });
+
+    pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+    pdf.save(`${filename}-${new Date().getTime()}.pdf`);
+    showStatus('Download started!', 
+      document.querySelector('.download-status'), 
+      document.querySelector('.status-text'), 
+      'success');
+  }
+
+  function downloadFallback(format) {
+    const img = document.getElementById('generated-chart');
+    if (img) {
+      const link = document.createElement('a');
+      link.download = `chart-${new Date().getTime()}.${format}`;
+      link.href = img.src;
+      link.click();
+      showStatus('Download started!', 
+        document.querySelector('.download-status'), 
+        document.querySelector('.status-text'), 
+        'success');
+    } else {
+      throw new Error('No chart available for download');
+    }
+  }
+
+  function showStatus(message, container, textElement, type = 'info') {
+    if (container && textElement) {
+      container.style.display = 'block';
+      textElement.textContent = message;
+      textElement.className = `status-text ${type}`;
+      
+      // Auto-hide success messages after 3 seconds
+      if (type === 'success') {
+        setTimeout(() => {
+          container.style.display = 'none';
+        }, 3000);
+      }
+    }
+  }
+
+  // Existing visualization functionality
+  const typeSel = document.getElementById('chart_type');
+  const subtypeSel = document.getElementById('subtype');
+  const sourceRadios = document.querySelectorAll('input[name="source"]');
+  const analysisRow = document.querySelector('.analysis-source');
+
+  function toggleSource() {
+    const v = document.querySelector('input[name="source"]:checked').value;
+    analysisRow.style.display = (v === 'analysis_csv') ? 'block' : 'none';
+  }
+  sourceRadios.forEach(r => r.addEventListener('change', toggleSource)); 
+  toggleSource();
+
+  // Toggle options by chart type
+  function hideAll() {
+    document.querySelectorAll('.options').forEach(e => e.style.display='none');
+  }
+  function show(cls) {
+    const el = document.querySelector(cls); 
+    if (el) el.style.display = 'block';
+  }
+  function onTypeChange() {
+    hideAll();
+    const t = typeSel.value;
+    if (t === 'bar') show('.options-bar');
+    if (t === 'hist') show('.options-hist');
+    if (t === 'radar') show('.options-radar');
+    if (t === 'network') show('.options-network');
+    if (t === 'gantt') show('.options-gantt');
+    if (t === 'sankey') show('.options-sankey');
+    if (t === 'map') show('.options-map');
+    if (t === 'dendrogram') show('.options-dendrogram');
+
+    // Map subtype toggle
+    const mapSubtype = document.getElementById('map_subtype');
+    if (mapSubtype) {
+      const dot = document.querySelector('.map-dot');
+      const chor = document.querySelector('.map-choropleth');
+      function syncMap() {
+        const val = mapSubtype.value;
+        if (val === 'dot') { 
+          dot.style.display='block'; 
+          chor.style.display='none'; 
+        } else { 
+          dot.style.display='none'; 
+          chor.style.display='block'; 
+        }
+      }
+      mapSubtype.addEventListener('change', syncMap);
+      syncMap();
+    }
+  }
+  
+  if (typeSel) {
+    typeSel.addEventListener('change', onTypeChange);
+    onTypeChange();
+  }
+});
+</script>
+{% endblock %}

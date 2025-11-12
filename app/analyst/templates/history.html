@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/visualizations.css') }}">
+
+<div class="container history-page">
+  <h2>📂 Historique des Graphiques</h2>
+
+  {% if graphs %}
+    {% for graph in graphs %}
+      <div class="graph-history">
+        <h4>{{ graph.name }}</h4>
+        <p>Type: {{ graph.graph_type }} | Créé le: {{ graph.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+
+        {% if graph.file_path.endswith('.png') or graph.file_path.endswith('.jpg') or graph.file_path.endswith('.jpeg') %}
+          <img src="{{ url_for('static', filename=graph.file_path) }}" alt="{{ graph.name }}" class="img-thumbnail" style="max-width: 400px; margin: 10px 0;">
+        {% else %}
+          <p><em>Preview not available (non-image file)</em></p>
+        {% endif %}
+
+        <a href="{{ url_for('analyst.download_graph', graph_id=graph.id) }}" class="btn btn-sm btn-outline-primary" download>
+          Télécharger
+        </a>
+      </div>
+      <hr>
+    {% endfor %}
+  {% else %}
+    <p>Aucun graphique enregistré pour l’instant.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

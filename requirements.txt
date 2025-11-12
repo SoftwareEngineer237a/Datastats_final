@@ -1,0 +1,45 @@
+# Flask core
+Flask==2.3.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-WTF==1.1.1
+Flask-Migrate==4.0.4
+pymysql
+
+# Auth & Security
+bcrypt==4.1.2
+python-dotenv==1.0.1
+werkzeug
+email_validator
+
+# Data Handling & Analysis
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.4.2
+scipy==1.13.1
+statsmodels==0.14.1
+prince
+
+# Visualizations
+matplotlib==3.8.4
+seaborn==0.13.2
+plotly==5.22.0
+
+# Exporting
+XlsxWriter==3.2.0
+python-pptx==0.6.23
+WeasyPrint==62.1
+reportlab==4.1.0
+
+# File parsing
+openpyxl==3.1.2
+xlrd==2.0.1
+
+# Utility
+tabulate==0.9.0
+requests==2.31.0
+networkx
+
+# api
+openai
+flask_limiter

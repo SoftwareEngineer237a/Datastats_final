@@ -1,0 +1,172 @@
+{% extends "viewer_layout.html" %}
+
+{% block page_title %}Viewer Dashboard{% endblock %}
+
+{% block viewer_content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/viewer/dashboard.css') }}">
+<!-- Quick Stats Section -->
+<section class="dashboard-section">
+    <h2>Overview</h2>
+    <div class="kpi-cards">
+        <div class="kpi-card">
+            <div class="kpi-content">
+                <h3>{{ total_graphs }}</h3>
+                <p>Total Graphs</p>
+            </div>
+            <div class="kpi-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-content">
+                <h3>{{ total_datasets }}</h3>
+                <p>Available Datasets</p>
+            </div>
+            <div class="kpi-icon">
+                <i class="fas fa-database"></i>
+            </div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-content">
+                <h3>{{ analysis_types|length }}</h3>
+                <p>Analysis Types</p>
+            </div>
+            <div class="kpi-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-content">
+                <h3>{{ weekly_activity }}</h3>
+                <p>This Week</p>
+            </div>
+            <div class="kpi-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions Section -->
+<section class="dashboard-section">
+    <h2>Quick Actions</h2>
+    <div class="quick-actions">
+        <a href="{{ url_for('viewer.search') }}" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="action-content">
+                <h4>Search Graphs</h4>
+                <p>Find specific analyses and visualizations</p>
+            </div>
+        </a>
+        
+        <a href="{{ url_for('viewer.insights') }}" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-history"></i>
+            </div>
+            <div class="action-content">
+                <h4>Insights Center</h4>
+                <p>Browse all previous analyses</p>
+            </div>
+        </a>
+        
+        <div class="action-card" onclick="alert('Feature coming soon!')">
+            <div class="action-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="action-content">
+                <h4>Favorites</h4>
+                <p>Access your saved graphs</p>
+            </div>
+        </div>
+        
+        <div class="action-card" onclick="alert('Feature coming soon!')">
+            <div class="action-icon">
+                <i class="fas fa-download"></i>
+            </div>
+            <div class="action-content">
+                <h4>Export Data</h4>
+                <p>Download analysis results</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Graphs Section -->
+<section class="dashboard-section">
+    <div class="section-header">
+        <h2>Recent Graphs</h2>
+        <a href="{{ url_for('viewer.search') }}" class="view-all">View All</a>
+    </div>
+    
+    {% if recent_graphs %}
+    <div class="recent-graphs">
+        {% for graph in recent_graphs %}
+        <div class="graph-card">
+            <div class="graph-preview">
+                {% if graph.file_path %}
+                <img src="{{ url_for('static', filename=graph.file_path) }}" 
+                     alt="{{ graph.name }}" onerror="this.src='{{ url_for('static', filename='img/placeholder-image.png') }}'">
+                {% else %}
+                <div class="no-preview">
+                    <i class="fas fa-chart-line"></i>
+                    <p>No Preview</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="graph-info">
+                <h4>{{ graph.name }}</h4>
+                <div class="graph-meta">
+                    <span class="graph-type">{{ graph.graph_type }}</span>
+                    <span class="analysis-type">{{ graph.analysis_type }}</span>
+                </div>
+                <div class="graph-date">
+                    <i class="far fa-calendar"></i>
+                    {{ graph.created_at.strftime('%b %d, %Y') }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-chart-bar"></i>
+        <h3>No Graphs Available</h3>
+        <p>Start by uploading datasets and generating analyses.</p>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Analysis Distribution Section -->
+<section class="dashboard-section">
+    <h2>Analysis Distribution</h2>
+    <div class="analysis-distribution">
+        {% if analysis_types %}
+        <div class="distribution-chart">
+            {% for analysis_type in analysis_types %}
+            <div class="distribution-item">
+                <div class="distribution-label">
+                    <span class="type-name">{{ analysis_type[0] }}</span>
+                    <span class="type-count">{{ analysis_type[1] }}</span>
+                </div>
+                <div class="distribution-bar">
+                    <div class="bar-fill"
+                        style="width: {{ (analysis_type[1] / total_graphs * 100) if total_graphs > 0 else 0 }}%">
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-chart-pie"></i>
+            <p>No analysis data available</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ml_model.css') }}">
+<script src="{{ url_for('static', filename='js/ml_models.js') }}"></script>
+
+<div class="container">
+    <h2>🧠 Machine Learning Models</h2>
+
+    <div class="info-box">
+        <p><strong>What are these models?</strong> Machine Learning models help discover patterns and make predictions based on data:</p>
+        <ul>
+            <li><strong>Random Forest:</strong> Combines many decision trees for more accurate predictions.</li>
+            <li><strong>KNN:</strong> Predicts based on nearest data points (neighbors) in the dataset.</li>
+        </ul>
+        <p>Use for both classification (categorical outcome) or regression (numeric outcome).</p>
+    </div>
+
+    <form method="POST" class="ml-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <label>📌 X Column (Feature):</label> 
+        <select name="x_column" required>
+            <option value="">-- Select --</option>
+            {% for col in numeric_cols %}
+                <option value="{{ col }}">{{ col }}</option>
+            {% endfor %}
+        </select>
+
+        <label>🎯 Y Column (Target):</label>
+        <select name="y_column" required>
+            <option value="">-- Select --</option>
+            {% for col in all_cols %}
+                <option value="{{ col }}">{{ col }}</option>
+            {% endfor %}
+        </select>
+
+        <label>🧠 Model Type:</label>
+        <select name="model_type" required>
+            <option value="random_forest">Random Forest</option>
+            <option value="knn">K-Nearest Neighbors</option>
+        </select>
+
+        <label>📊 Task Type:</label>
+        <select name="task_type" required>
+            <option value="classification">Classification</option>
+            <option value="regression">Regression</option>
+        </select>
+
+        <label>👥 K (for KNN only):</label>
+        <input type="number" name="n_neighbors" min="1" max="20" value="3">
+
+        <button type="submit">Run Model</button>
+    </form>
+
+    {% if result and result.csv %}
+    <div class="mt-3">
+        <a class="btn btn-success"
+        href="{{ url_for('static', filename='results/' ~ result.csv) }}"
+        download>
+        ⬇️ Download ML Results CSV
+        </a>
+    </div>
+    {% endif %}
+
+    {% if result %}
+    <hr>
+    <h3>📈 Result</h3>
+    <p><strong>Model Metric:</strong> {{ result.metric }}</p>
+
+    {% if result.label_mapping %}
+    <p><strong>Label Encoding:</strong> {{ result.label_mapping }}</p>
+    {% endif %}
+
+    <table class="table table-bordered">
+        <thead><tr><th>X</th><th>Predicted Y</th></tr></thead>
+        <tbody>
+        {% for x, y in result.predictions %}
+            <tr><td>{{ x }}</td><td>{{ y }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

@@ -10,6 +10,8 @@ from app.api.chat_config import (
     RESTRICTION_MESSAGE,
     ENHANCED_SYSTEM_CONTEXT
 )
+from app.api.chat_domain import get_app_answer
+from app.api.chat_knowledge import get_local_answer
 
 # Load environment variables
 load_dotenv()
@@ -79,6 +81,12 @@ def chat():
 
         user_message = data.get("message", "").strip()
         context = data.get("context", ENHANCED_SYSTEM_CONTEXT)
+        
+        # Check for local DataStats knowledge
+        local_answer = get_local_answer(user_message)
+        if local_answer:
+            return jsonify({"reply": local_answer})
+
 
         if not user_message:
             return jsonify({"error": "Message cannot be empty"}), 400
@@ -87,7 +95,13 @@ def chat():
         if not DomainValidator.is_question_allowed(user_message):
             return jsonify({"reply": RESTRICTION_MESSAGE})
 
-        # Build the conversation prompt with enhanced context
+        # First, check for local/canned answers about the Datastats app
+        local = get_app_answer(user_message)
+        if local:
+            current_app.logger.debug("Chat: returning local canned answer for Datastats request")
+            return jsonify({"reply": local})
+
+        # Build the conversation prompt with enhanced context and call the LLM
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -99,7 +113,6 @@ def chat():
         )
 
         ai_reply = response.choices[0].message.content
-
         return jsonify({"reply": ai_reply})
 
     except Exception as e:
